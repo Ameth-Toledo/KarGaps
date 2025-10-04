@@ -12,7 +12,7 @@ interface PlayerasResponse {
   providedIn: 'root'
 })
 export class PlayerasService {
-  private apiUrl = 'http://localhost:8080/api/playeras';
+  private apiUrl = 'https://kargaps.onrender.com/api/playeras';
 
   constructor(private http: HttpClient) { }
 

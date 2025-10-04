@@ -12,7 +12,7 @@ interface GorrasResponse {
   providedIn: 'root'
 })
 export class GorrasService {
-  private apiUrl = 'http://localhost:8080/api/gorras';
+  private apiUrl = 'https://kargaps.onrender.com/api/gorras';
 
   constructor(private http: HttpClient) { }
 
