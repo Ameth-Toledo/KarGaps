@@ -1,0 +1,223 @@
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div *ngIf="mostrarAlerta" class="fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-3">
+        <i class='bx bx-check-circle text-2xl'></i>
+        <span class="font-medium">Producto agregado al carrito</span>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+
+            <div class="flex-shrink-0">
+                <img src="logo.png" alt="Logo" class="h-14 w-auto">
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#inicio"
+                    class="text-gray-700 hover:text-pink-500 transition-colors font-medium border-b-2 border-pink-500 pb-1">
+                    Inicio
+                </a>
+                <a href="#playeras" class="text-gray-700 hover:text-pink-500 transition-colors font-medium">
+                    Playeras
+                </a>
+                <a href="#novedades" class="text-gray-700 hover:text-pink-500 transition-colors font-medium">
+                    Novedades
+                </a>
+            </nav>
+
+            <div class="hidden md:flex items-center space-x-4">
+                <button (click)="toggleBusqueda()" class="text-gray-700 hover:text-pink-500 transition-colors">
+                    <i class='bx bx-search text-2xl'></i>
+                </button>
+                <button class="text-gray-700 hover:text-pink-500 transition-colors">
+                    <i class='bx bx-user text-2xl'></i>
+                </button>
+                <button (click)="toggleCarrito()" class="text-gray-700 hover:text-pink-500 transition-colors relative">
+                    <i class='bx bx-cart text-2xl'></i>
+                    <span *ngIf="cantidadCarrito > 0"
+                        class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {{cantidadCarrito}}
+                    </span>
+                </button>
+            </div>
+
+            <button (click)="toggleMenu()" class="md:hidden text-gray-700 focus:outline-none">
+                <i class='bx text-3xl' [ngClass]="menuAbierto ? 'bx-x' : 'bx-menu'"></i>
+            </button>
+        </div>
+
+        <!-- Barra de búsqueda para desktop -->
+        <div *ngIf="busquedaAbierta" class="hidden md:block pb-4 animate-fade-in">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    [(ngModel)]="terminoBusqueda"
+                    (input)="onBusquedaChange(terminoBusqueda)"
+                    placeholder="Buscar gorras por nombre, color o descripción..."
+                    class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                
+                <button (click)="toggleBusqueda()"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <i class='bx bx-x text-2xl'></i>
+                </button>
+
+                <!-- Indicador de carga -->
+                <div *ngIf="buscando" class="absolute right-12 top-1/2 transform -translate-y-1/2">
+                    <i class='bx bx-loader-alt bx-spin text-pink-500 text-xl'></i>
+                </div>
+
+                <!-- Resultados de búsqueda -->
+                <div *ngIf="mostrarResultados" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                    <div *ngIf="resultadosBusqueda.length === 0 && !buscando" class="p-4 text-center text-gray-500">
+                        <i class='bx bx-search-alt text-4xl mb-2'></i>
+                        <p>No se encontraron gorras con ese término</p>
+                    </div>
+
+                    <div *ngIf="resultadosBusqueda.length > 0" class="divide-y divide-gray-100">
+                        <div *ngFor="let gorra of resultadosBusqueda" 
+                            class="p-3 hover:bg-gray-50 cursor-pointer transition-colors flex gap-3">
+                            <img [src]="gorra.imagen_url" [alt]="gorra.nombre" 
+                                class="w-16 h-16 object-contain rounded">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">{{ gorra.nombre }}</h4>
+                                <p class="text-xs text-gray-500 line-clamp-1">{{ gorra.descripcion }}</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="text-pink-600 font-bold">${{ getPrecioNumerico(gorra.precio).toFixed(2) }}</span>
+                                    <span class="text-xs text-gray-500">Stock: {{ gorra.stock }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú móvil -->
+        <div [ngClass]="{'block': menuAbierto, 'hidden': !menuAbierto}" class="md:hidden pb-4">
+            <nav class="flex flex-col space-y-3">
+                <a href="#inicio" (click)="cerrarMenu()"
+                    class="text-gray-700 hover:text-pink-500 transition-colors font-medium py-2 border-b border-gray-100">
+                    Inicio
+                </a>
+                <a href="#playeras" (click)="cerrarMenu()"
+                    class="text-gray-700 hover:text-pink-500 transition-colors font-medium py-2 border-b border-gray-100">
+                    Playeras
+                </a>
+                <a href="#novedades" (click)="cerrarMenu()"
+                    class="text-gray-700 hover:text-pink-500 transition-colors font-medium py-2 border-b border-gray-100">
+                    Novedades
+                </a>
+            </nav>
+
+            <div class="flex items-center space-x-6 mt-4 pt-4 border-t border-gray-100">
+                <button (click)="toggleBusqueda()" class="text-gray-700 hover:text-pink-500 transition-colors">
+                    <i class='bx bx-search text-2xl'></i>
+                </button>
+                <button class="text-gray-700 hover:text-pink-500 transition-colors">
+                    <i class='bx bx-user text-2xl'></i>
+                </button>
+                <button (click)="toggleCarrito()" class="text-gray-700 hover:text-pink-500 transition-colors relative">
+                    <i class='bx bx-cart text-2xl'></i>
+                    <span *ngIf="cantidadCarrito > 0"
+                        class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {{cantidadCarrito}}
+                    </span>
+                </button>
+            </div>
+
+            <!-- Barra de búsqueda móvil -->
+            <div *ngIf="busquedaAbierta" class="mt-4 pt-4 border-t border-gray-100">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        [(ngModel)]="terminoBusqueda"
+                        (input)="onBusquedaChange(terminoBusqueda)"
+                        placeholder="Buscar gorras..."
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                    
+                    <button *ngIf="!buscando" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-pink-500">
+                        <i class='bx bx-search text-xl'></i>
+                    </button>
+
+                    <div *ngIf="buscando" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <i class='bx bx-loader-alt bx-spin text-pink-500 text-xl'></i>
+                    </div>
+                </div>
+
+                <!-- Resultados móvil -->
+                <div *ngIf="mostrarResultados" class="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                    <div *ngIf="resultadosBusqueda.length === 0 && !buscando" class="p-4 text-center text-gray-500">
+                        <i class='bx bx-search-alt text-3xl mb-2'></i>
+                        <p class="text-sm">No se encontraron resultados</p>
+                    </div>
+
+                    <div *ngIf="resultadosBusqueda.length > 0" class="divide-y divide-gray-100">
+                        <div *ngFor="let gorra of resultadosBusqueda" 
+                            class="p-3 hover:bg-gray-50 flex gap-3">
+                            <img [src]="gorra.imagen_url" [alt]="gorra.nombre" 
+                                class="w-14 h-14 object-contain rounded">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">{{ gorra.nombre }}</h4>
+                                <p class="text-xs text-gray-500 line-clamp-1">{{ gorra.descripcion }}</p>
+                                <span class="text-pink-600 font-bold text-sm">${{ getPrecioNumerico(gorra.precio).toFixed(2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel del carrito (sin cambios) -->
+        <div *ngIf="carritoAbierto" class="fixed inset-0 bg-black bg-opacity-50 z-50" (click)="toggleCarrito()">
+            <div class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl animate-slide-in"
+                (click)="$event.stopPropagation()">
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center justify-between p-4 border-b">
+                        <h2 class="text-xl font-semibold">Carrito de Compras</h2>
+                        <button (click)="toggleCarrito()" class="text-gray-500 hover:text-gray-700">
+                            <i class='bx bx-x text-3xl'></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-4">
+                        <div *ngIf="cantidadCarrito === 0"
+                            class="flex flex-col items-center justify-center h-full text-center">
+                            <i class='bx bx-cart text-6xl text-gray-300 mb-4'></i>
+                            <h3 class="text-lg font-medium text-gray-600 mb-2">Tu carrito está vacío</h3>
+                            <p class="text-gray-400 text-sm">Agrega productos para comenzar tu compra</p>
+                        </div>
+
+                        <div *ngIf="cantidadCarrito > 0" class="space-y-4">
+                            <div *ngFor="let producto of productosCarrito; let i = index"
+                                class="flex gap-4 bg-gray-50 p-3 rounded-lg">
+                                <img [src]="producto.imagen" [alt]="producto.nombre"
+                                    class="w-20 h-20 object-contain rounded">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-sm mb-1">{{ producto.nombre }}</h4>
+                                    <p class="text-xs text-gray-500 mb-2">Color: {{ producto.color }}</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-pink-600 font-bold">${{ producto.precio.toFixed(2) }}</span>
+                                        <span class="text-sm text-gray-600">x{{ producto.cantidad }}</span>
+                                    </div>
+                                </div>
+                                <button (click)="eliminarProducto(i)" class="text-red-500 hover:text-red-700">
+                                    <i class='bx bx-trash text-xl'></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="cantidadCarrito > 0" class="border-t p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-lg font-semibold">Total:</span>
+                            <span class="text-2xl font-bold text-pink-500">${{ totalCarrito.toFixed(2) }}</span>
+                        </div>
+                        <button (click)="procederAlPago()"
+                            class="w-full bg-pink-500 text-white py-3 rounded-lg font-medium hover:bg-pink-600 transition-colors">
+                            Proceder al pago
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
