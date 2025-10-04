@@ -1,1 +1,109 @@
-<p>login works!</p>
+<app-header></app-header>
+
+<div class="min-h-screen bg-gradient-to-br from-pink-50 to-white flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <img src="logo.png" alt="KarGaps Logo" class="h-16 w-auto mx-auto mb-4">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Bienvenido a KarGaps</h1>
+            <p class="text-gray-600">Inicia sesión para continuar</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Correo Electrónico
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class='bx bx-envelope text-gray-400 text-xl'></i>
+                        </div>
+                        <input 
+                            type="email" 
+                            id="email"
+                            name="email"
+                            [(ngModel)]="email"
+                            required
+                            email
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                            placeholder="tu@email.com"
+                            [class.border-red-500]="loginForm.submitted && !email">
+                    </div>
+                    <p *ngIf="loginForm.submitted && !email" class="mt-1 text-sm text-red-600">
+                        El correo es requerido
+                    </p>
+                </div>
+
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class='bx bx-lock-alt text-gray-400 text-xl'></i>
+                        </div>
+                        <input 
+                            [type]="mostrarPassword ? 'text' : 'password'" 
+                            id="password"
+                            name="password"
+                            [(ngModel)]="password"
+                            required
+                            minlength="6"
+                            class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                            placeholder="••••••••"
+                            [class.border-red-500]="loginForm.submitted && !password">
+                        <button 
+                            type="button"
+                            (click)="togglePassword()"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class='bx text-xl' [ngClass]="mostrarPassword ? 'bx-hide' : 'bx-show'"></i>
+                        </button>
+                    </div>
+                    <p *ngIf="loginForm.submitted && !password" class="mt-1 text-sm text-red-600">
+                        La contraseña es requerida
+                    </p>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <label class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            [(ngModel)]="recordarme"
+                            name="recordarme"
+                            class="w-4 h-4 text-pink-500 border-gray-300 rounded focus:ring-pink-500">
+                        <span class="ml-2 text-sm text-gray-600">Recordarme</span>
+                    </label>
+                    <a href="#" class="text-sm text-pink-500 hover:text-pink-600 font-medium">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+
+                <div *ngIf="errorMensaje" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                    <i class='bx bx-error-circle text-red-500 text-xl'></i>
+                    <span class="text-sm text-red-600">{{ errorMensaje }}</span>
+                </div>
+
+                <button 
+                    type="submit"
+                    [disabled]="cargando"
+                    class="w-full bg-pink-500 text-white py-3 rounded-lg font-medium hover:bg-pink-600 transition-colors disabled:bg-pink-300 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i *ngIf="cargando" class='bx bx-loader-alt bx-spin text-xl'></i>
+                    <span>{{ cargando ? 'Iniciando sesión...' : 'Iniciar Sesión' }}</span>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">
+                    ¿No tienes una cuenta? 
+                    <a (click)="contactarSoporte($event)" href="#" class="text-pink-500 hover:text-pink-600 font-medium ml-1">
+                        Comunícate con soporte
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center text-sm text-gray-500">
+            <p>© {{ currentYear }} KarGaps. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</div>
