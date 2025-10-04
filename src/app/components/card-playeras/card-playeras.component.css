@@ -1,4 +1,4 @@
-.card-gorras {
+.card-playeras {
   max-width: 320px;
   font-family: 'Poppins', sans-serif;
 }
@@ -20,7 +20,7 @@
   text-overflow: ellipsis;
 }
 
-.card-gorras button:hover i {
+.card-playeras button:hover i {
   animation: heartBeat 0.5s ease-in-out;
 }
 
@@ -40,7 +40,7 @@
 }
 
 @media (max-width: 640px) {
-  .card-gorras {
+  .card-playeras {
     max-width: 280px;
   }
 }

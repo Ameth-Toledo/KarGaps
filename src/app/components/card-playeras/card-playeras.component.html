@@ -1,10 +1,10 @@
-<div class="card-gorras group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+<div class="card-playeras group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
   
   <div class="relative bg-gray-50 overflow-hidden h-64 flex items-center justify-center p-6">
     <img 
       [src]="imagen" 
       [alt]="nombre" 
-      class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
     >
     
     <div *ngIf="stock < 5 && stock > 0" class="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -25,7 +25,14 @@
       {{ descripcion }}
     </p>
     
-    <div class="flex items-center gap-2 mb-3">
+    <!-- Talla -->
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-sm text-gray-500">Talla:</span>
+      <span class="text-sm font-semibold text-gray-700 uppercase">{{ talla }}</span>
+    </div>
+
+    <!-- Color -->
+    <div class="flex items-center gap-2 mb-2">
       <span class="text-sm text-gray-500">Color:</span>
       <div class="flex items-center gap-2">
         <div 
@@ -36,6 +43,13 @@
       </div>
     </div>
 
+    <!-- Material y Tipo -->
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded capitalize">{{ material }}</span>
+      <span class="text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded capitalize">{{ tipo }}</span>
+    </div>
+
+    <!-- Disponibilidad -->
     <div class="mb-3 flex items-center gap-2">
       <i class='bx bx-package text-gray-500'></i>
       <span class="text-sm" [ngClass]="{

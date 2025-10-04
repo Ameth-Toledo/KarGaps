@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { CarritoService, ProductoCarrito } from '../../services/carrito/carrito.service';
 import { GorrasService } from '../../services/gorras/gorras.service';
 import { Gorra } from '../../models/gorra';
-import { Subscription, debounceTime, Subject } from 'rxjs';
+import { Subscription, debounceTime, Subject, forkJoin } from 'rxjs';
+import { PlayerasService } from '../../services/playeras/playeras.service';
+import { Playera } from '../../models/playera';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -24,6 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   terminoBusqueda = '';
   resultadosBusqueda: Gorra[] = [];
+  resultadosBusquedaPlayera: Playera[] = [];
   buscando = false;
   mostrarResultados = false;
   private busquedaSubject = new Subject<string>();
@@ -36,7 +40,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   constructor(
     private carritoService: CarritoService,
-    private gorrasService: GorrasService
+    private gorrasService: GorrasService,
+    private playerasService: PlayerasService,
+    private router: Router
   ) {}
   
   ngOnInit() {
@@ -93,17 +99,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   realizarBusqueda(termino: string) {
     this.buscando = true;
-    this.gorrasService.searchGorras(termino).subscribe({
-      next: (response) => {
-        this.resultadosBusqueda = response.gorras;
+    
+    forkJoin({
+      gorras: this.gorrasService.searchGorras(termino),
+      playeras: this.playerasService.searchPlayeras(termino)
+    }).subscribe({
+      next: (results) => {
+        this.resultadosBusqueda = results.gorras.gorras;
+        this.resultadosBusquedaPlayera = results.playeras.playeras;
         this.mostrarResultados = true;
         this.buscando = false;
-        this.resultadosBusquedaEmitidos.emit(response.gorras);
+        
+        this.resultadosBusquedaEmitidos.emit(results.gorras.gorras);
       },
       error: (error) => {
         console.error('Error en búsqueda:', error);
         this.buscando = false;
         this.resultadosBusqueda = [];
+        this.resultadosBusquedaPlayera = [];
         this.mostrarResultados = true;
       }
     });
@@ -112,6 +125,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   limpiarBusqueda() {
     this.terminoBusqueda = '';
     this.resultadosBusqueda = [];
+    this.resultadosBusquedaPlayera = [];
     this.mostrarResultados = false;
     this.buscando = false;
     this.resultadosBusquedaEmitidos.emit([]);
@@ -158,5 +172,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const numeroWhatsApp = '5219612041185';
     const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`;
     window.open(urlWhatsApp, '_blank');
+  }
+
+  sendToLogin(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['login'])
   }
 }
