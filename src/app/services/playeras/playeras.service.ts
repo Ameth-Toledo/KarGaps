@@ -29,4 +29,16 @@ export class PlayerasService {
       params: { q: query }
     });
   }
+
+  createPlayera(formData: FormData): Observable<Playera> {
+    return this.http.post<Playera>(this.apiUrl, formData);
+  }
+
+  updatePlayera(id: number, formData: FormData): Observable<Playera> {
+    return this.http.put<Playera>(`${this.apiUrl}/${id}`, formData);
+  }
+
+  deletePlayera(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

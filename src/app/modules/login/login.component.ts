@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from "../../components/header/header.component";
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,10 +21,18 @@ export class LoginComponent implements OnInit {
   errorMensaje = '';
   currentYear!: number;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.currentYear = new Date().getFullYear();
+    
+    // Redirigir si ya está autenticado
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['dashboard']);
+    }
   }
 
   togglePassword() {
@@ -54,14 +63,27 @@ export class LoginComponent implements OnInit {
 
     this.cargando = true;
 
-    setTimeout(() => {
-      if (this.email === 'admin@kargaps.com' && this.password === '123456') {
-        console.log('Login exitoso');
-        this.router.navigate(['/']); 
-      } else {
-        this.errorMensaje = 'Correo o contraseña incorrectos';
-        this.cargando = false;
-      }
-    }, 1500);
+    // Llamar a la API
+    this.authService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (response) => {
+          console.log('Login exitoso:', response);
+          
+          // Mensaje de bienvenida con el nombre de la API
+          const nombreUsuario = response.data.name;
+          console.log(`¡Bienvenido ${nombreUsuario}!`);
+          
+          // Navegar al home
+          this.router.navigate(['dashboard']);
+        },
+        error: (error) => {
+          console.error('Error en login:', error);
+          this.errorMensaje = error.message;
+          this.cargando = false;
+        },
+        complete: () => {
+          this.cargando = false;
+        }
+      });
   }
 }

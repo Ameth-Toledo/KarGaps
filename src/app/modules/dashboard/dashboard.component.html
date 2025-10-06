@@ -1,1 +1,474 @@
-<p>dashboard works!</p>
+<div class="min-h-screen bg-gray-50">
+    <!-- Alerta -->
+    <div *ngIf="mostrarAlerta" 
+        [ngClass]="tipoAlerta === 'success' ? 'bg-green-500' : 'bg-red-500'"
+        class="fixed top-20 right-4 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-3">
+        <i class='bx text-2xl' [ngClass]="tipoAlerta === 'success' ? 'bx-check-circle' : 'bx-error-circle'"></i>
+        <span class="font-medium">{{ mensajeAlerta }}</span>
+    </div>
+
+    <!-- Header del Dashboard -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <button (click)="toggleMenu()" class="lg:hidden text-gray-700 focus:outline-none">
+                        <i class='bx text-3xl' [ngClass]="menuAbierto ? 'bx-x' : 'bx-menu'"></i>
+                    </button>
+                    <img src="logo.png" alt="Logo" class="h-12 w-auto">
+                    <span class="text-xl font-semibold text-gray-800 hidden sm:block">Dashboard Admin</span>
+                </div>
+
+                <!-- Usuario y logout -->
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-3">
+                        <img [src]="getAvatarUrl()" [alt]="userData?.name" 
+                            class="w-10 h-10 rounded-full border-2 border-pink-500">
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-gray-800">{{ userData?.name }}</p>
+                            <p class="text-xs text-gray-500">{{ userData?.email }}</p>
+                        </div>
+                    </div>
+                    <button (click)="cerrarSesion()" 
+                        class="text-gray-700 hover:text-pink-500 transition-colors">
+                        <i class='bx bx-log-out text-2xl'></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar Desktop -->
+        <aside class="hidden lg:block w-64 bg-white shadow-sm min-h-screen">
+            <nav class="p-4 space-y-2">
+                <button (click)="cambiarVista('inicio')" 
+                    [ngClass]="vistaActual === 'inicio' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-home text-xl'></i>
+                    <span class="font-medium">Inicio</span>
+                </button>
+
+                <div class="pt-2 pb-2">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Playeras</p>
+                </div>
+
+                <button (click)="cambiarVista('ver-playeras')" 
+                    [ngClass]="vistaActual === 'ver-playeras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-list-ul text-xl'></i>
+                    <span class="font-medium">Ver Playeras</span>
+                </button>
+
+                <button (click)="cambiarVista('añadir-playera')" 
+                    [ngClass]="vistaActual === 'añadir-playera' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-plus-circle text-xl'></i>
+                    <span class="font-medium">Añadir Playera</span>
+                </button>
+
+                <button (click)="cambiarVista('editar-playeras')" 
+                    [ngClass]="vistaActual === 'editar-playeras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-edit text-xl'></i>
+                    <span class="font-medium">Editar Playeras</span>
+                </button>
+
+                <button (click)="cambiarVista('eliminar-playeras')" 
+                    [ngClass]="vistaActual === 'eliminar-playeras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-trash text-xl'></i>
+                    <span class="font-medium">Eliminar Playeras</span>
+                </button>
+
+                <div class="pt-2 pb-2">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Gorras</p>
+                </div>
+
+                <button (click)="cambiarVista('ver-gorras')" 
+                    [ngClass]="vistaActual === 'ver-gorras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-list-ul text-xl'></i>
+                    <span class="font-medium">Ver Gorras</span>
+                </button>
+
+                <button (click)="cambiarVista('añadir-gorra')" 
+                    [ngClass]="vistaActual === 'añadir-gorra' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-plus-circle text-xl'></i>
+                    <span class="font-medium">Añadir Gorra</span>
+                </button>
+
+                <button (click)="cambiarVista('editar-gorras')" 
+                    [ngClass]="vistaActual === 'editar-gorras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-edit text-xl'></i>
+                    <span class="font-medium">Editar Gorras</span>
+                </button>
+
+                <button (click)="cambiarVista('eliminar-gorras')" 
+                    [ngClass]="vistaActual === 'eliminar-gorras' ? 'bg-pink-50 text-pink-600 border-l-4 border-pink-500' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-trash text-xl'></i>
+                    <span class="font-medium">Eliminar Gorras</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Menú Móvil -->
+        <div [ngClass]="{'translate-x-0': menuAbierto, '-translate-x-full': !menuAbierto}" 
+            class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:hidden">
+            <div class="p-4 border-b flex items-center space-x-3">
+                <img [src]="getAvatarUrl()" [alt]="userData?.name" 
+                    class="w-10 h-10 rounded-full border-2 border-pink-500">
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">{{ userData?.name }}</p>
+                    <p class="text-xs text-gray-500">{{ userData?.email }}</p>
+                </div>
+            </div>
+            <nav class="p-4 space-y-2">
+                <button (click)="cambiarVista('inicio')" 
+                    [ngClass]="vistaActual === 'inicio' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-home text-xl'></i>
+                    <span class="font-medium">Inicio</span>
+                </button>
+
+                <div class="pt-2 pb-2">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase">Playeras</p>
+                </div>
+
+                <button (click)="cambiarVista('ver-playeras')" 
+                    [ngClass]="vistaActual === 'ver-playeras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-list-ul text-xl'></i>
+                    <span class="font-medium">Ver Playeras</span>
+                </button>
+
+                <button (click)="cambiarVista('añadir-playera')" 
+                    [ngClass]="vistaActual === 'añadir-playera' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-plus-circle text-xl'></i>
+                    <span class="font-medium">Añadir Playera</span>
+                </button>
+
+                <button (click)="cambiarVista('editar-playeras')" 
+                    [ngClass]="vistaActual === 'editar-playeras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-edit text-xl'></i>
+                    <span class="font-medium">Editar Playeras</span>
+                </button>
+
+                <button (click)="cambiarVista('eliminar-playeras')" 
+                    [ngClass]="vistaActual === 'eliminar-playeras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-trash text-xl'></i>
+                    <span class="font-medium">Eliminar Playeras</span>
+                </button>
+
+                <div class="pt-2 pb-2">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase">Gorras</p>
+                </div>
+
+                <button (click)="cambiarVista('ver-gorras')" 
+                    [ngClass]="vistaActual === 'ver-gorras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-list-ul text-xl'></i>
+                    <span class="font-medium">Ver Gorras</span>
+                </button>
+
+                <button (click)="cambiarVista('añadir-gorra')" 
+                    [ngClass]="vistaActual === 'añadir-gorra' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-plus-circle text-xl'></i>
+                    <span class="font-medium">Añadir Gorra</span>
+                </button>
+
+                <button (click)="cambiarVista('editar-gorras')" 
+                    [ngClass]="vistaActual === 'editar-gorras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-edit text-xl'></i>
+                    <span class="font-medium">Editar Gorras</span>
+                </button>
+
+                <button (click)="cambiarVista('eliminar-gorras')" 
+                    [ngClass]="vistaActual === 'eliminar-gorras' ? 'bg-pink-50 text-pink-600' : 'text-gray-700 hover:bg-gray-50'"
+                    class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors">
+                    <i class='bx bx-trash text-xl'></i>
+                    <span class="font-medium">Eliminar Gorras</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Overlay para menú móvil -->
+        <div *ngIf="menuAbierto" (click)="toggleMenu()" 
+            class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
+
+        <!-- Contenido Principal -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <!-- Vista Inicio -->
+            <div *ngIf="vistaActual === 'inicio'">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Panel de Control</h1>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                    <!-- Card Playeras -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-pink-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Total Playeras</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ estadisticas.totalPlayeras }}</p>
+                            </div>
+                            <div class="bg-pink-100 p-3 rounded-lg">
+                                <i class='bx bx-closet text-3xl text-pink-500'></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Gorras -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Total Gorras</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ estadisticas.totalGorras }}</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-lg">
+                                <i class='bx bx-baseball text-3xl text-purple-500'></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Ventas -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Ventas Hoy</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ estadisticas.ventasHoy }}</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class='bx bx-cart text-3xl text-green-500'></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Ingresos -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Ingresos Mes</p>
+                                <p class="text-2xl font-bold text-gray-800">${{ estadisticas.ingresosMes.toFixed(2) }}</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class='bx bx-dollar-circle text-3xl text-blue-500'></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accesos Rápidos -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Accesos Rápidos</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <button (click)="cambiarVista('añadir-playera')" 
+                            class="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-pink-500 hover:bg-pink-50 transition-colors">
+                            <i class='bx bx-plus-circle text-4xl text-pink-500 mb-2'></i>
+                            <span class="text-sm font-medium text-gray-700">Añadir Playera</span>
+                        </button>
+
+                        <button (click)="cambiarVista('añadir-gorra')" 
+                            class="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-pink-500 hover:bg-pink-50 transition-colors">
+                            <i class='bx bx-plus-circle text-4xl text-pink-500 mb-2'></i>
+                            <span class="text-sm font-medium text-gray-700">Añadir Gorra</span>
+                        </button>
+
+                        <button (click)="cambiarVista('ver-playeras')" 
+                            class="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-pink-500 hover:bg-pink-50 transition-colors">
+                            <i class='bx bx-list-ul text-4xl text-pink-500 mb-2'></i>
+                            <span class="text-sm font-medium text-gray-700">Ver Playeras</span>
+                        </button>
+
+                        <button (click)="cambiarVista('ver-gorras')" 
+                            class="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-pink-500 hover:bg-pink-50 transition-colors">
+                            <i class='bx bx-list-ul text-4xl text-pink-500 mb-2'></i>
+                            <span class="text-sm font-medium text-gray-700">Ver Gorras</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario Añadir Gorra -->
+            <div *ngIf="vistaActual === 'añadir-gorra'" class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Añadir Nueva Gorra</h2>
+                
+                <form (ngSubmit)="agregarGorra()" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                            <input type="text" [(ngModel)]="nuevaGorra.nombre" name="nombre"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                            <input type="text" [(ngModel)]="nuevaGorra.color" name="color"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Precio</label>
+                            <input type="number" [(ngModel)]="nuevaGorra.precio" name="precio" step="0.01"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                            <input type="number" [(ngModel)]="nuevaGorra.stock" name="stock"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                        <textarea [(ngModel)]="nuevaGorra.descripcion" name="descripcion" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            required></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Imagen</label>
+                        <input type="file" (change)="onImagenGorraSelected($event)" accept="image/*"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            required>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" (click)="cambiarVista('inicio')"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">
+                            Agregar Gorra
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario Añadir Playera -->
+            <div *ngIf="vistaActual === 'añadir-playera'" class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Añadir Nueva Playera</h2>
+                
+                <form (ngSubmit)="agregarPlayera()" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                            <input type="text" [(ngModel)]="nuevaPlayera.nombre" name="nombre"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                            <input type="text" [(ngModel)]="nuevaPlayera.color" name="color"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Precio</label>
+                            <input type="number" [(ngModel)]="nuevaPlayera.precio" name="precio" step="0.01"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                            <input type="number" [(ngModel)]="nuevaPlayera.stock" name="stock"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Talla</label>
+                            <select [(ngModel)]="nuevaPlayera.talla" name="talla"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                                <option value="">Seleccionar talla</option>
+                                <option value="XS">XS</option>
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                            <input type="text" [(ngModel)]="nuevaPlayera.tipo" name="tipo"
+                                placeholder="Ej: Manga corta, Manga larga"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Material</label>
+                            <input type="text" [(ngModel)]="nuevaPlayera.material" name="material"
+                                placeholder="Ej: Algodón, Poliéster"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                        <textarea [(ngModel)]="nuevaPlayera.descripcion" name="descripcion" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            required></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Imagen</label>
+                        <input type="file" (change)="onImagenPlayeraSelected($event)" accept="image/*"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            required>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" (click)="cambiarVista('inicio')"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">
+                            Agregar Playera
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Otras Vistas -->
+            <div *ngIf="vistaActual !== 'inicio' && vistaActual !== 'añadir-gorra' && vistaActual !== 'añadir-playera'" 
+                class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <span *ngIf="vistaActual === 'ver-playeras'">Lista de Playeras</span>
+                    <span *ngIf="vistaActual === 'editar-playeras'">Editar Playeras</span>
+                    <span *ngIf="vistaActual === 'eliminar-playeras'">Eliminar Playeras</span>
+                    <span *ngIf="vistaActual === 'ver-gorras'">Lista de Gorras</span>
+                    <span *ngIf="vistaActual === 'editar-gorras'">Editar Gorras</span>
+                    <span *ngIf="vistaActual === 'eliminar-gorras'">Eliminar Gorras</span>
+                </h2>
+                
+                <div class="text-center py-12">
+                    <i class='bx bx-package text-6xl text-gray-300 mb-4'></i>
+                    <p class="text-gray-500">Contenido de {{ vistaActual }}</p>
+                    <p class="text-sm text-gray-400 mt-2">Implementa aquí tu funcionalidad específica</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
