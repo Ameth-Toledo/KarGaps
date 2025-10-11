@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth/auth.service';
 import { GorrasService } from '../../services/gorras/gorras.service';
 import { PlayerasService } from '../../services/playeras/playeras.service';
+import { Playera } from '../../models/playera';
 
 interface DashboardUserData {
   name: string;
@@ -55,6 +56,12 @@ export class DashboardComponent implements OnInit {
     imagen: null as File | null
   };
 
+  // Listas
+  playeras: any[] = [];
+  playerasFiltradas: any[] = [];
+  playeraEditando: any = null;
+  busquedaPlayeras = '';
+
   // Alertas
   mostrarAlerta = false;
   mensajeAlerta = '';
@@ -78,17 +85,8 @@ export class DashboardComponent implements OnInit {
         name: currentUser.name,
         email: currentUser.email,
         userId: currentUser.userId,
-        avatar: 1 // Avatar por defecto, o puedes obtenerlo de otra fuente
+        avatar: 1
       };
-      
-      // Si necesitas obtener el avatar del usuario desde la API
-      // this.usersService.getUserById(currentUser.userId).subscribe({
-      //   next: (user) => {
-      //     if (this.userData && user.avatar) {
-      //       this.userData.avatar = typeof user.avatar === 'number' ? user.avatar : parseInt(user.avatar);
-      //     }
-      //   }
-      // });
     }
   }
 
@@ -99,9 +97,22 @@ export class DashboardComponent implements OnInit {
       }
     });
 
+    this.cargarPlayeras();
+  }
+
+  cargarPlayeras() {
     this.playerasService.getPlayeras().subscribe({
       next: (response) => {
+        // Convertir precio a número si viene como string
+        this.playeras = response.playeras.map(playera => ({
+          ...playera,
+          precio: typeof playera.precio === 'string' ? parseFloat(playera.precio) : playera.precio
+        }));
+        this.playerasFiltradas = this.playeras;
         this.estadisticas.totalPlayeras = response.total;
+      },
+      error: (error) => {
+        console.error('Error al cargar playeras:', error);
       }
     });
   }
@@ -118,6 +129,10 @@ export class DashboardComponent implements OnInit {
     this.vistaActual = vista;
     this.menuAbierto = false;
     this.resetFormularios();
+    
+    if (vista === 'ver-playeras' || vista === 'editar-playeras' || vista === 'eliminar-playeras') {
+      this.cargarPlayeras();
+    }
   }
 
   resetFormularios() {
@@ -141,6 +156,96 @@ export class DashboardComponent implements OnInit {
       material: '',
       imagen: null
     };
+
+    this.playeraEditando = null;
+    this.busquedaPlayeras = '';
+  }
+
+  buscarPlayeras() {
+    if (!this.busquedaPlayeras.trim()) {
+      this.playerasFiltradas = this.playeras;
+      return;
+    }
+
+    const busqueda = this.busquedaPlayeras.toLowerCase();
+    this.playerasFiltradas = this.playeras.filter(playera =>
+      playera.nombre.toLowerCase().includes(busqueda) ||
+      playera.color.toLowerCase().includes(busqueda) ||
+      playera.talla.toLowerCase().includes(busqueda)
+    );
+  }
+
+  seleccionarPlayeraParaEditar(playera: any) {
+    this.playeraEditando = { ...playera };
+    this.nuevaPlayera = {
+      nombre: playera.nombre,
+      descripcion: playera.descripcion,
+      precio: typeof playera.precio === 'string' ? parseFloat(playera.precio) : playera.precio,
+      stock: playera.stock,
+      color: playera.color,
+      talla: playera.talla,
+      tipo: playera.tipo,
+      material: playera.material,
+      imagen: null
+    };
+  }
+
+  actualizarPlayera() {
+    if (!this.playeraEditando) return;
+
+    if (!this.validarFormularioPlayeraEdicion()) {
+      this.mostrarMensaje('Por favor completa todos los campos', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombre', this.nuevaPlayera.nombre);
+    formData.append('descripcion', this.nuevaPlayera.descripcion);
+    formData.append('precio', this.nuevaPlayera.precio.toString());
+    formData.append('stock', this.nuevaPlayera.stock.toString());
+    formData.append('color', this.nuevaPlayera.color);
+    formData.append('talla', this.nuevaPlayera.talla);
+    formData.append('tipo', this.nuevaPlayera.tipo);
+    formData.append('material', this.nuevaPlayera.material);
+    
+    if (this.nuevaPlayera.imagen) {
+      formData.append('imagen', this.nuevaPlayera.imagen);
+    }
+
+    this.playerasService.updatePlayera(this.playeraEditando.id, formData).subscribe({
+      next: () => {
+        this.mostrarMensaje('Playera actualizada exitosamente', 'success');
+        this.cargarPlayeras();
+        this.playeraEditando = null;
+        this.resetFormularios();
+      },
+      error: (error) => {
+        this.mostrarMensaje('Error al actualizar la playera', 'error');
+        console.error(error);
+      }
+    });
+  }
+
+  cancelarEdicion() {
+    this.playeraEditando = null;
+    this.resetFormularios();
+  }
+
+  eliminarPlayera(id: number) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta playera?')) {
+      return;
+    }
+
+    this.playerasService.deletePlayera(id).subscribe({
+      next: () => {
+        this.mostrarMensaje('Playera eliminada exitosamente', 'success');
+        this.cargarPlayeras();
+      },
+      error: (error) => {
+        this.mostrarMensaje('Error al eliminar la playera', 'error');
+        console.error(error);
+      }
+    });
   }
 
   onImagenGorraSelected(event: any) {
@@ -240,6 +345,19 @@ export class DashboardComponent implements OnInit {
       this.nuevaPlayera.tipo &&
       this.nuevaPlayera.material &&
       this.nuevaPlayera.imagen
+    );
+  }
+
+  validarFormularioPlayeraEdicion(): boolean {
+    return !!(
+      this.nuevaPlayera.nombre &&
+      this.nuevaPlayera.descripcion &&
+      this.nuevaPlayera.precio > 0 &&
+      this.nuevaPlayera.stock >= 0 &&
+      this.nuevaPlayera.color &&
+      this.nuevaPlayera.talla &&
+      this.nuevaPlayera.tipo &&
+      this.nuevaPlayera.material
     );
   }
 
