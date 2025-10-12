@@ -25,7 +25,6 @@ export class DashboardComponent implements OnInit {
   vistaActual: string = 'inicio';
   userData: DashboardUserData | null = null;
   
-  // Estadísticas
   estadisticas = {
     totalPlayeras: 0,
     totalGorras: 0,
@@ -33,7 +32,6 @@ export class DashboardComponent implements OnInit {
     ingresosMes: 15240.50
   };
 
-  // Formulario Gorra
   nuevaGorra = {
     nombre: '',
     descripcion: '',
@@ -43,7 +41,6 @@ export class DashboardComponent implements OnInit {
     imagen: null as File | null
   };
 
-  // Formulario Playera
   nuevaPlayera = {
     nombre: '',
     descripcion: '',
@@ -56,13 +53,16 @@ export class DashboardComponent implements OnInit {
     imagen: null as File | null
   };
 
-  // Listas
   playeras: any[] = [];
   playerasFiltradas: any[] = [];
   playeraEditando: any = null;
   busquedaPlayeras = '';
 
-  // Alertas
+  gorras: any[] = [];
+  gorrasFiltradas: any[] = [];
+  gorraEditando: any = null;
+  busquedaGorras = '';
+
   mostrarAlerta = false;
   mensajeAlerta = '';
   tipoAlerta: 'success' | 'error' = 'success';
@@ -91,19 +91,29 @@ export class DashboardComponent implements OnInit {
   }
 
   cargarEstadisticas() {
+    this.cargarGorras();
+    this.cargarPlayeras();
+  }
+
+  cargarGorras() {
     this.gorrasService.getGorras().subscribe({
       next: (response) => {
+        this.gorras = response.gorras.map(gorra => ({
+          ...gorra,
+          precio: typeof gorra.precio === 'string' ? parseFloat(gorra.precio) : gorra.precio
+        }));
+        this.gorrasFiltradas = this.gorras;
         this.estadisticas.totalGorras = response.total;
+      },
+      error: (error) => {
+        console.error('Error al cargar gorras:', error);
       }
     });
-
-    this.cargarPlayeras();
   }
 
   cargarPlayeras() {
     this.playerasService.getPlayeras().subscribe({
       next: (response) => {
-        // Convertir precio a número si viene como string
         this.playeras = response.playeras.map(playera => ({
           ...playera,
           precio: typeof playera.precio === 'string' ? parseFloat(playera.precio) : playera.precio
@@ -133,6 +143,10 @@ export class DashboardComponent implements OnInit {
     if (vista === 'ver-playeras' || vista === 'editar-playeras' || vista === 'eliminar-playeras') {
       this.cargarPlayeras();
     }
+    
+    if (vista === 'ver-gorras' || vista === 'editar-gorras' || vista === 'eliminar-gorras') {
+      this.cargarGorras();
+    }
   }
 
   resetFormularios() {
@@ -159,6 +173,8 @@ export class DashboardComponent implements OnInit {
 
     this.playeraEditando = null;
     this.busquedaPlayeras = '';
+    this.gorraEditando = null;
+    this.busquedaGorras = '';
   }
 
   buscarPlayeras() {
@@ -248,47 +264,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onImagenGorraSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.nuevaGorra.imagen = file;
-    }
-  }
-
   onImagenPlayeraSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.nuevaPlayera.imagen = file;
     }
-  }
-
-  agregarGorra() {
-    if (!this.validarFormularioGorra()) {
-      this.mostrarMensaje('Por favor completa todos los campos', 'error');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('nombre', this.nuevaGorra.nombre);
-    formData.append('descripcion', this.nuevaGorra.descripcion);
-    formData.append('precio', this.nuevaGorra.precio.toString());
-    formData.append('stock', this.nuevaGorra.stock.toString());
-    formData.append('color', this.nuevaGorra.color);
-    if (this.nuevaGorra.imagen) {
-      formData.append('imagen', this.nuevaGorra.imagen);
-    }
-
-    this.gorrasService.createGorra(formData).subscribe({
-      next: () => {
-        this.mostrarMensaje('Gorra agregada exitosamente', 'success');
-        this.resetFormularios();
-        this.cargarEstadisticas();
-      },
-      error: (error) => {
-        this.mostrarMensaje('Error al agregar la gorra', 'error');
-        console.error(error);
-      }
-    });
   }
 
   agregarPlayera() {
@@ -318,6 +298,122 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         this.mostrarMensaje('Error al agregar la playera', 'error');
+        console.error(error);
+      }
+    });
+  }
+
+  buscarGorras() {
+    if (!this.busquedaGorras.trim()) {
+      this.gorrasFiltradas = this.gorras;
+      return;
+    }
+
+    const busqueda = this.busquedaGorras.toLowerCase();
+    this.gorrasFiltradas = this.gorras.filter(gorra =>
+      gorra.nombre.toLowerCase().includes(busqueda) ||
+      gorra.color.toLowerCase().includes(busqueda)
+    );
+  }
+
+  seleccionarGorraParaEditar(gorra: any) {
+    this.gorraEditando = { ...gorra };
+    this.nuevaGorra = {
+      nombre: gorra.nombre,
+      descripcion: gorra.descripcion,
+      precio: typeof gorra.precio === 'string' ? parseFloat(gorra.precio) : gorra.precio,
+      stock: gorra.stock,
+      color: gorra.color,
+      imagen: null
+    };
+  }
+
+  actualizarGorra() {
+    if (!this.gorraEditando) return;
+
+    if (!this.validarFormularioGorraEdicion()) {
+      this.mostrarMensaje('Por favor completa todos los campos', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombre', this.nuevaGorra.nombre);
+    formData.append('descripcion', this.nuevaGorra.descripcion);
+    formData.append('precio', this.nuevaGorra.precio.toString());
+    formData.append('stock', this.nuevaGorra.stock.toString());
+    formData.append('color', this.nuevaGorra.color);
+    
+    if (this.nuevaGorra.imagen) {
+      formData.append('imagen', this.nuevaGorra.imagen);
+    }
+
+    this.gorrasService.updateGorra(this.gorraEditando.id, formData).subscribe({
+      next: () => {
+        this.mostrarMensaje('Gorra actualizada exitosamente', 'success');
+        this.cargarGorras();
+        this.gorraEditando = null;
+        this.resetFormularios();
+      },
+      error: (error) => {
+        this.mostrarMensaje('Error al actualizar la gorra', 'error');
+        console.error(error);
+      }
+    });
+  }
+
+  cancelarEdicionGorra() {
+    this.gorraEditando = null;
+    this.resetFormularios();
+  }
+
+  eliminarGorra(id: number) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta gorra?')) {
+      return;
+    }
+
+    this.gorrasService.deleteGorra(id).subscribe({
+      next: () => {
+        this.mostrarMensaje('Gorra eliminada exitosamente', 'success');
+        this.cargarGorras();
+      },
+      error: (error) => {
+        this.mostrarMensaje('Error al eliminar la gorra', 'error');
+        console.error(error);
+      }
+    });
+  }
+
+  onImagenGorraSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.nuevaGorra.imagen = file;
+    }
+  }
+
+  agregarGorra() {
+    if (!this.validarFormularioGorra()) {
+      this.mostrarMensaje('Por favor completa todos los campos', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombre', this.nuevaGorra.nombre);
+    formData.append('descripcion', this.nuevaGorra.descripcion);
+    formData.append('precio', this.nuevaGorra.precio.toString());
+    formData.append('stock', this.nuevaGorra.stock.toString());
+    formData.append('color', this.nuevaGorra.color);
+    if (this.nuevaGorra.imagen) {
+      formData.append('imagen', this.nuevaGorra.imagen);
+    }
+
+    this.gorrasService.createGorra(formData).subscribe({
+      next: () => {
+        this.mostrarMensaje('Gorra agregada exitosamente', 'success');
+        this.resetFormularios();
+        this.cargarEstadisticas();
+      },
+      error: (error) => {
+        this.mostrarMensaje('Error al agregar la gorra', 'error');
         console.error(error);
       }
     });
@@ -358,6 +454,16 @@ export class DashboardComponent implements OnInit {
       this.nuevaPlayera.talla &&
       this.nuevaPlayera.tipo &&
       this.nuevaPlayera.material
+    );
+  }
+
+  validarFormularioGorraEdicion(): boolean {
+    return !!(
+      this.nuevaGorra.nombre &&
+      this.nuevaGorra.descripcion &&
+      this.nuevaGorra.precio > 0 &&
+      this.nuevaGorra.stock >= 0 &&
+      this.nuevaGorra.color
     );
   }
 

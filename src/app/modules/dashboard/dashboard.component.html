@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-gray-50">
-    <!-- Alerta -->
     <div *ngIf="mostrarAlerta" 
         [ngClass]="tipoAlerta === 'success' ? 'bg-green-500' : 'bg-red-500'"
         class="fixed top-20 right-4 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-3">
@@ -7,7 +6,6 @@
         <span class="font-medium">{{ mensajeAlerta }}</span>
     </div>
 
-    <!-- Header del Dashboard -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -38,7 +36,6 @@
     </header>
 
     <div class="flex">
-        <!-- Sidebar Desktop -->
         <aside class="hidden lg:block w-64 bg-white shadow-sm min-h-screen">
             <nav class="p-4 space-y-2">
                 <button (click)="cambiarVista('inicio')" 
@@ -114,7 +111,6 @@
             </nav>
         </aside>
 
-        <!-- Menú Móvil -->
         <div [ngClass]="{'translate-x-0': menuAbierto, '-translate-x-full': !menuAbierto}" 
             class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:hidden">
             <div class="p-4 border-b flex items-center space-x-3">
@@ -199,13 +195,10 @@
             </nav>
         </div>
 
-        <!-- Overlay para menú móvil -->
         <div *ngIf="menuAbierto" (click)="toggleMenu()" 
             class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
 
-        <!-- Contenido Principal -->
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
-            <!-- Vista Inicio -->
             <div *ngIf="vistaActual === 'inicio'" class="space-y-8">
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Panel de Control</h1>
                 
@@ -289,7 +282,6 @@
                 </div>
             </div>
 
-            <!-- Vista Ver Playeras -->
             <div *ngIf="vistaActual === 'ver-playeras'" class="bg-white rounded-lg shadow-sm p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800">Lista de Playeras</h2>
@@ -329,11 +321,9 @@
                 </div>
             </div>
 
-            <!-- Vista Editar Playeras -->
             <div *ngIf="vistaActual === 'editar-playeras'" class="bg-white rounded-lg shadow-sm p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Editar Playeras</h2>
 
-                <!-- Si no hay playera seleccionada, mostrar lista -->
                 <div *ngIf="!playeraEditando">
                     <div class="mb-6">
                         <input type="text" [(ngModel)]="busquedaPlayeras" (input)="buscarPlayeras()"
@@ -366,7 +356,6 @@
                     </div>
                 </div>
 
-                <!-- Formulario de edición -->
                 <div *ngIf="playeraEditando">
                     <div class="mb-6 p-4 bg-pink-50 rounded-lg">
                         <p class="text-sm text-pink-800">Editando: <strong>{{ playeraEditando.nombre }}</strong></p>
@@ -464,7 +453,6 @@
                 </div>
             </div>
 
-            <!-- Vista Eliminar Playeras -->
             <div *ngIf="vistaActual === 'eliminar-playeras'" class="bg-white rounded-lg shadow-sm p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Eliminar Playeras</h2>
 
@@ -509,7 +497,6 @@
                 </div>
             </div>
 
-            <!-- Formulario Añadir Playera -->
             <div *ngIf="vistaActual === 'añadir-playera'" class="bg-white rounded-lg shadow-sm p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Añadir Nueva Playera</h2>
                 
@@ -602,7 +589,6 @@
                 </form>
             </div>
 
-            <!-- Formulario Añadir Gorra -->
             <div *ngIf="vistaActual === 'añadir-gorra'" class="bg-white rounded-lg shadow-sm p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Añadir Nueva Gorra</h2>
                 
@@ -664,19 +650,186 @@
                 </form>
             </div>
 
-            <!-- Otras Vistas de Gorras -->
-            <div *ngIf="vistaActual === 'ver-gorras' || vistaActual === 'editar-gorras' || vistaActual === 'eliminar-gorras'" 
-                class="bg-white rounded-lg shadow-sm p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <span *ngIf="vistaActual === 'ver-gorras'">Lista de Gorras</span>
-                    <span *ngIf="vistaActual === 'editar-gorras'">Editar Gorras</span>
-                    <span *ngIf="vistaActual === 'eliminar-gorras'">Eliminar Gorras</span>
-                </h2>
-                
-                <div class="text-center py-12">
+            <div *ngIf="vistaActual === 'ver-gorras'" class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Lista de Gorras</h2>
+                    <div class="w-full sm:w-auto">
+                        <input type="text" [(ngModel)]="busquedaGorras" (input)="buscarGorras()"
+                            placeholder="Buscar gorra..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                    </div>
+                </div>
+
+                <div *ngIf="gorrasFiltradas.length === 0" class="text-center py-12">
                     <i class='bx bx-package text-6xl text-gray-300 mb-4'></i>
-                    <p class="text-gray-500">Contenido de {{ vistaActual }}</p>
-                    <p class="text-sm text-gray-400 mt-2">Implementa aquí tu funcionalidad específica</p>
+                    <p class="text-gray-500">No hay gorras disponibles</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div *ngFor="let gorra of gorrasFiltradas" 
+                        class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                        <img [src]="gorra.imagen_url" [alt]="gorra.nombre" 
+                            class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ gorra.nombre }}</h3>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ gorra.descripcion }}</p>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">{{ gorra.color }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-xl font-bold text-pink-600">${{ gorra.precio }}</p>
+                                    <p class="text-sm text-gray-500">Stock: {{ gorra.stock }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="vistaActual === 'editar-gorras'" class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Editar Gorras</h2>
+
+                <div *ngIf="!gorraEditando">
+                    <div class="mb-6">
+                        <input type="text" [(ngModel)]="busquedaGorras" (input)="buscarGorras()"
+                            placeholder="Buscar gorra para editar..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                    </div>
+
+                    <div *ngIf="gorrasFiltradas.length === 0" class="text-center py-12">
+                        <i class='bx bx-package text-6xl text-gray-300 mb-4'></i>
+                        <p class="text-gray-500">No hay gorras disponibles</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div *ngFor="let gorra of gorrasFiltradas" 
+                            class="border border-gray-200 rounded-lg p-4 hover:border-pink-500 transition-colors">
+                            <div class="flex items-start space-x-4">
+                                <img [src]="gorra.imagen_url" [alt]="gorra.nombre" 
+                                    class="w-20 h-20 object-cover rounded-lg">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-800">{{ gorra.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ gorra.color }}</p>
+                                    <p class="text-pink-600 font-bold mt-1">${{ gorra.precio.toFixed(2) }}</p>
+                                    <button (click)="seleccionarGorraParaEditar(gorra)"
+                                        class="mt-2 px-4 py-1 bg-pink-500 text-white text-sm rounded-lg hover:bg-pink-600 transition-colors">
+                                        Editar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="gorraEditando">
+                    <div class="mb-6 p-4 bg-pink-50 rounded-lg">
+                        <p class="text-sm text-pink-800">Editando: <strong>{{ gorraEditando.nombre }}</strong></p>
+                    </div>
+
+                    <form (ngSubmit)="actualizarGorra()" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                                <input type="text" [(ngModel)]="nuevaGorra.nombre" name="nombre"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                                <input type="text" [(ngModel)]="nuevaGorra.color" name="color"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Precio</label>
+                                <input type="number" [(ngModel)]="nuevaGorra.precio" name="precio" step="0.01"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                                <input type="number" [(ngModel)]="nuevaGorra.stock" name="stock"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                            <textarea [(ngModel)]="nuevaGorra.descripcion" name="descripcion" rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                required></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Nueva Imagen (opcional)
+                            </label>
+                            <input type="file" (change)="onImagenGorraSelected($event)" accept="image/*"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                            <p class="text-xs text-gray-500 mt-1">Deja vacío si no deseas cambiar la imagen</p>
+                        </div>
+
+                        <div class="flex justify-end space-x-4 pt-4">
+                            <button type="button" (click)="cancelarEdicionGorra()"
+                                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">
+                                Actualizar Gorra
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div *ngIf="vistaActual === 'eliminar-gorras'" class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Eliminar Gorras</h2>
+
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center">
+                        <i class='bx bx-error-circle text-2xl text-red-600 mr-3'></i>
+                        <p class="text-sm text-red-800">
+                            <strong>Advertencia:</strong> Esta acción no se puede deshacer. Al eliminar una gorra, se borrará permanentemente del sistema.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <input type="text" [(ngModel)]="busquedaGorras" (input)="buscarGorras()"
+                        placeholder="Buscar gorra para eliminar..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+
+                <div *ngIf="gorrasFiltradas.length === 0" class="text-center py-12">
+                    <i class='bx bx-package text-6xl text-gray-300 mb-4'></i>
+                    <p class="text-gray-500">No hay gorras disponibles</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div *ngFor="let gorra of gorrasFiltradas" 
+                        class="border border-gray-200 rounded-lg overflow-hidden hover:border-red-400 transition-colors">
+                        <img [src]="gorra.imagen_url" [alt]="gorra.nombre" 
+                            class="w-full h-40 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-800 mb-1">{{ gorra.nombre }}</h3>
+                            <p class="text-sm text-gray-600 mb-2">{{ gorra.color }}</p>
+                            <p class="text-sm text-gray-600 mb-2">{{ gorra.descripcion }}</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-pink-600 font-bold">${{ gorra.precio.toFixed(2) }}</p>
+                                <button (click)="eliminarGorra(gorra.id)"
+                                    class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                                    <i class='bx bx-trash'></i>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
