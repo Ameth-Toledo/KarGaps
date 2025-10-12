@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { CardPlayerasComponent } from "../../components/card-playeras/card-playeras.component";
 import { PlayerasService } from '../../services/playeras/playeras.service';
 import { Playera } from '../../models/playera';
+import { ViewChild } from '@angular/core';
+import { ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-playeras-section',
@@ -12,6 +14,8 @@ import { Playera } from '../../models/playera';
   styleUrl: './playeras-section.component.css'
 })
 export class PlayerasSectionComponent implements OnInit {
+  @ViewChild('carruselContainer') carruselContainer!: ElementRef;
+  
   playeras: Playera[] = [];
   total: number = 0;
   loading: boolean = false;
@@ -43,5 +47,18 @@ export class PlayerasSectionComponent implements OnInit {
 
   getPrecioNumerico(precio: string | number): number {
     return typeof precio === 'string' ? parseFloat(precio) : precio;
+  }
+
+  scrollCarrusel(direction: 'left' | 'right'): void {
+    if (this.carruselContainer) {
+      const container = this.carruselContainer.nativeElement;
+      const scrollAmount = 300; 
+      
+      if (direction === 'left') {
+        container.scrollLeft -= scrollAmount;
+      } else {
+        container.scrollLeft += scrollAmount;
+      }
+    }
   }
 }

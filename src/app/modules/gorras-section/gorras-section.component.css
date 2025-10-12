@@ -1,16 +1,43 @@
-.gorras-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+/* Ocultar scrollbar en diferentes navegadores manteniendo funcionalidad */
+.scrollbar-custom {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: thin;     /* Firefox */
 }
 
-.gorras-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  margin-bottom: 20px;
+.scrollbar-custom::-webkit-scrollbar {
+  height: 8px;
 }
 
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #ec4899;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #db2777;
+}
+
+/* Animación suave para el scroll */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Efecto de snap para alinear cards */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}
+
+/* Estados de carga y error */
 .loading,
 .error,
 .no-results {
@@ -49,10 +76,9 @@
   color: #666;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .gorras-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+  .scrollbar-custom::-webkit-scrollbar {
+    height: 6px;
   }
 }
-

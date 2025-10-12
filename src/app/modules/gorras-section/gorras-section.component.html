@@ -17,18 +17,43 @@
   </div>
 
   <div *ngIf="!loading && !error">
-    <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-8">Gorras</h1>
-    <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-      <app-card-gorras
-        *ngFor="let gorra of gorras"
-        [nombre]="gorra.nombre"
-        [precio]="getPrecioNumerico(gorra.precio)"
-        [stock]="gorra.stock"
-        [color]="gorra.color"
-        [imagen]="gorra.imagen_url"
-        [descripcion]="gorra.descripcion"
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Gorras</h1>
+      <div class="flex gap-2">
+        <button 
+          (click)="scrollCarrusel('left')"
+          class="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <i class='bx bx-chevron-left text-2xl'></i>
+        </button>
+        <button 
+          (click)="scrollCarrusel('right')"
+          class="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <i class='bx bx-chevron-right text-2xl'></i>
+        </button>
+      </div>
+    </div>
+    <div class="relative group">
+      <div 
+        class="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory scroll-smooth scrollbar-custom"
+        style="scrollbar-width: thin; scrollbar-color: #ec4899 #f3f4f6;"
       >
-      </app-card-gorras>
+        <div 
+          *ngFor="let gorra of gorras"
+          class="flex-shrink-0 w-72 snap-start"
+        >
+          <app-card-gorras
+            [nombre]="gorra.nombre"
+            [precio]="getPrecioNumerico(gorra.precio)"
+            [stock]="gorra.stock"
+            [color]="gorra.color"
+            [imagen]="gorra.imagen_url"
+            [descripcion]="gorra.descripcion"
+          >
+          </app-card-gorras>
+        </div>
+      </div>
     </div>
   </div>
 
